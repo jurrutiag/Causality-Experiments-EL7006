@@ -1,0 +1,47 @@
+a = Namespace(__argp__=ArgumentParser(prog='run.py train', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True), __argv__=['run.py', 'train', '-e', '1', '--seed', '1', '--train_functional', '10000', '--mopt', 'adam:5e-2,0.9', '--gopt', 'adam:5e-3,0.1', '-v', '500', '--lsparse', '0.1', '--bs', '256', '--ldag', '0.5', '--predict', '100', '--temperature', '1', '--limit-samples', '500', '-N', '2', '-p', 'chain3'], __cls__=<class '__main__.root.train'>, baseDir='work', batch_size=256, cpi=20, cuda=[], dataDir='data', dpe=10, fastdebug=0, gamma_optimizer=Namespace(beta1=0.1, beta2=0.999, eps=1e-08, lr=0.005, name='adam'), graph=['0->1->2'], hidden_learn=None, hidden_truth=None, ipd=100, ldag=0.5, limit_interventions=0, limit_samples=500, lmaxent=0.0, lsparse=[Namespace(lr=0.1, name='const')], model='cat', model_optimizer=Namespace(beta1=0.9, beta2=0.999, eps=1e-08, lr=0.05, name='adam'), name=[], num_cats=2, num_epochs=1, num_parents=5, num_vars=3, pdb=False, predict=100, predict_cpb=10, seed=1, summary=False, temperature=1.0, temperature_gt=1.0, temperature_pthresh=1.0, tmpDir='tmp', train_functional=10000, verbose=500, workDir=None, xfer_epi_size=10)
+
+M: Número de nodos, ej: 3
+N: Número de categorías por cada variable, ej: [2, 2, 2]
+
+H: Número de neuronas de capa oculta
+Hgt: Número de neuronas ocultas en Ground Truth
+Hlr: Lo mismo pero en la red que se entrena
+Para los valores anteriores, si son None de argumentos, entonces se setean en 4M o en 4max(N) (el mayor de estos casos)
+
+W0slow: Pesos de la primera capa, es de tamaño (M, sum(N), H) porque tiene en la primera dimensión
+la red de cada nodo, en la segunda, las entradas de los nodos posibles (recordar que se codifica
+la entrada en one-hot, por lo que es la suma de las categorías de las variables), y en la tercera
+tiene el tamaño de la capa escondida
+W1slow: Pesos de la segunda capa, es de tamaño (sum(N), H), porque la salida debiesen ser
+las salidas categóricas de cada matriz (sum(N)), y la entrada H. Está alrevés pero asumo
+que en algún lado se traspone o se hace una suma de Einstein.
+
+Los strides tienen que ver con cómo se guardan estos pesos en la memoria. Asumo que no importa en este caso.
+
+
+== Loop de entrenamiento ==
+
+dpe: Training distributions per epoch
+
+train_functional: Define cuantos samples realizar para entrenar los parámetros funcionales en la fase 1
+
+configiter: entrega una configuración sampleada. Para esto saca una uniforme del tamaño de gamma
+y entrega todos los valores igual a 1 cuando esta uniforme es menor que el gamma respectivo
+el resto son 0, además fija la diagonal en cero.
+sampleiter: Samplea variables, para esto toma muestras de tamaño (M, batch_size).
+bif?
+
+msoptimizer: Model optimizer
+
+Al parecer se actualizan los gradientes en el archivo .c al calcular el loss.
+
+ipd: Número de intervenciones por distribución
+
+predict: es el número de iteraciones para la predicción de intervención
+predict_cpb: Número de configuraciones por batch para la predicción de intervención
+
+goptimizer: Gamma optimizer
+
+# Preguntas
+
+1) El loop de épocas está fuera del loop de distintas distribuciones.
