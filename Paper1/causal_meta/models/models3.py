@@ -1,3 +1,7 @@
+import torch
+from torch import nn
+
+
 class ModelA2BC(nn.Module):
     def __init__(self, p_A, p_B_A, p_C_A):
         super().__init__()

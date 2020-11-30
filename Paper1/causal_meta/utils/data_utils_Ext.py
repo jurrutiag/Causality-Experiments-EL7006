@@ -69,7 +69,7 @@ def generate_data_categorical(num_samples, pi_A, pi_B_A):
 
 
 
-def generate_data_categorical_extended(num_samples, pi_A, pi_B_A, pi_C_B, pi_C):
+def generate_data_categorical_extended(num_samples, pi_A, pi_B_A, pi_C):
     """Sample data using ancestral sampling
     
     x_A ~ Categorical(pi_A)
@@ -90,7 +90,7 @@ def generate_data_categorical_extended(num_samples, pi_A, pi_B_A, pi_C_B, pi_C):
         x_Cs[i] = np.random.multinomial(1, pi_C[x_B_A[i], x_A[i]], size=1)
     
     x_C = np.dot(x_Cs, r)
-    return np.vstack((x_A, x_B, x_C)).T.astype(np.int64)
+    return np.vstack((x_A, x_B_A, x_C)).T.astype(np.int64)
 
 def generate_data_multivariate_normal(num_samples, mean_A, cov_A, beta_0, beta_1, cov_B_A):
     """ Sample data using ancestral sampling

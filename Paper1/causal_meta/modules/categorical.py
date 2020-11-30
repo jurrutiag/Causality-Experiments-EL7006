@@ -26,7 +26,7 @@ class Conditional(nn.Module):
 
 class BiConditional(nn.Module):
     def __init__(self, N, dtype=None):
-        super(Conditional, self).__init__()
+        super(BiConditional, self).__init__()
         self.N = N
         self.w = nn.Parameter(torch.zeros((N, N, N), dtype=dtype))
     
