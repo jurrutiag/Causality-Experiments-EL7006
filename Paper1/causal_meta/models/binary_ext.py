@@ -56,21 +56,22 @@ class BinaryStructuralModel_extended(nn.Module):
         self.w9 = nn.Parameter(torch.tensor(0., dtype=torch.float64))
 
     def forward(self, inputs):
-                return self.online_loglikelihood(self.model_1(inputs), self.model_2(inputs), self.model_3(inputs),                                                                                     self.model_4(inputs), self.model_5(inputs), self.model_6(inputs),\
-                                                            self.model_7(inputs), self.model_8(inputs), self.model_9(inputs))
+            return self.online_loglikelihood(self.model_1(inputs), self.model_2(inputs), self.model_3(inputs), self.model_4(inputs), self.model_5(inputs), self.model_6(inputs),\
+                                                        self.model_7(inputs), self.model_8(inputs), self.model_9(inputs))
 
     def online_loglikelihood(self, logl_1, logl_2, logl_3, logl_4, logl_5, logl_6, logl_7, logl_8, logl_9):
-        structural = [self.w1, self.w2, self.w3, self.w4, self.w5, self.w6, self.w7, self.w8, self.w9]
-        n = logl_1.size(0)
-        pw1, pw2, pw3, pw4, pw5, pw6, pw7, sw8, sw9 = nn.Softmax(structural)
+        structural = torch.cat([self.w1.reshape(1, -1), self.w2.reshape(1, -1), self.w3.reshape(1, -1), self.w4.reshape(1, -1), self.w5.reshape(1, -1), self.w6.reshape(1, -1), self.w7.reshape(1, -1), self.w8.reshape(1, -1), self.w9.reshape(1, -1)], dim=0)
 
-        return -torch.log(pw1*torch.exp(torch.sum(logl_1)) +pw2*torch.exp(torch.sum(logl_2))  + pw3*torch.exp(torch.sum(logl_3)) +                 pw4*torch.exp(torch.sum(logl_4)) + pw5*torch.exp(torch.sum(logl_5)) + pw7*torch.exp(torch.sum(logl_7)) + pw8*torch.exp(torch.sum(logl_8)) + pw9*torch.exp(torch.sum(logl_9)))
+        smax = F.softmax(structural, dim=0)
+        pw1, pw2, pw3, pw4, pw5, pw6, pw7, pw8, pw9 = smax[0, 0], smax[1, 0], smax[2, 0], smax[3, 0], smax[4, 0], smax[5, 0], smax[6, 0], smax[7, 0], smax[8, 0]
+
+        return -torch.log(pw1*torch.exp(torch.sum(logl_1)) + pw2*torch.exp(torch.sum(logl_2))  + pw3*torch.exp(torch.sum(logl_3)) + pw4*torch.exp(torch.sum(logl_4)) + pw5*torch.exp(torch.sum(logl_5)) + pw6*torch.exp(torch.sum(logl_6)) + pw7*torch.exp(torch.sum(logl_7)) + pw8*torch.exp(torch.sum(logl_8)) + pw9*torch.exp(torch.sum(logl_9)))
                 
 
     def modules_parameters(self):
         return chain(self.model_1.parameters(), self.model_2.parameters(), self.model_3.parameters(), self.model_4.parameters(),\
-                    self.model_5.parameters(), self.model_6.parameters(),  self.model_4.parameters(),\
-                    self.model_5.parameters(), self.model_6.parameters())
+                    self.model_5.parameters(), self.model_6.parameters(),  self.model_7.parameters(),\
+                    self.model_8.parameters(), self.model_9.parameters())
 
     def structural_parameters(self):
         return [self.w1, self.w2, self.w3, self.w4, self.w5, self.w6, self.w7, self.w8, self.w9]

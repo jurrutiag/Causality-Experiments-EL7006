@@ -29,16 +29,16 @@ class ModelA2BC(nn.Module):
             log_p_C_A = torch.logsumexp(log_joint - log_p_A, dim=1, keepdim=True)
 
             self.p_A.w.data = log_p_A.squeeze()
-            self.p_B_A.w.data = log_p_B_A.squeeze()
-            self.p_C_A.w.data = log_p_C_A.squeeze()
+            self.p_B_A.w.data = log_p_B_A.squeeze().permute(1, 0)
+            self.p_C_A.w.data = log_p_C_A.squeeze().permute(1, 0)
 
 
     def get_joint(*args):
         p_A, p_B_A, p_C_A = args
 
         p_A_th = torch.from_numpy(p_A).unsqueeze(1).unsqueeze(2)
-        p_B_A_th = torch.from_numpy(p_B_A).unsqueeze(2)
-        p_C_A_th = torch.from_numpy(p_C_A).unsqueeze(1)
+        p_B_A_th = torch.from_numpy(p_B_A).unsqueeze(2).permute(1, 0, 2)
+        p_C_A_th = torch.from_numpy(p_C_A).unsqueeze(1).permute(2, 1, 0)
 
         return torch.log(p_A_th) + torch.log(p_B_A_th) + torch.log(p_C_A_th)
 
@@ -71,7 +71,7 @@ class ModelB2AC(nn.Module):
 
             self.p_B.w.data = log_p_B.squeeze()
             self.p_A_B.w.data = log_p_A_B.squeeze()
-            self.p_C_B.w.data = log_p_C_B.squeeze()
+            self.p_C_B.w.data = log_p_C_B.squeeze().permute(1, 0)
 
 
     def get_joint(*args):
@@ -79,7 +79,7 @@ class ModelB2AC(nn.Module):
 
         p_B_th = torch.from_numpy(p_B).unsqueeze(0).unsqueeze(2)
         p_A_B_th = torch.from_numpy(p_A_B).unsqueeze(2)
-        p_C_B_th = torch.from_numpy(p_C_B).unsqueeze(0)
+        p_C_B_th = torch.from_numpy(p_C_B).unsqueeze(0).permute(0, 2, 1)
 
         return torch.log(p_B_th) + torch.log(p_A_B_th) + torch.log(p_C_B_th)
 
@@ -151,16 +151,16 @@ class ModelA2BC_B2C(nn.Module):
             log_p_B_A = torch.logsumexp(log_joint - log_p_A, dim=2, keepdim=True)
 
             self.p_A.w.data = log_p_A.squeeze()
-            self.p_C_AB.w.data = log_p_C_AB.squeeze()
-            self.p_B_A.w.data = log_p_B_A.squeeze()
+            self.p_C_AB.w.data = log_p_C_AB.squeeze().permute(2, 0, 1)
+            self.p_B_A.w.data = log_p_B_A.squeeze().permute(1, 0)
 
 
     def get_joint(*args):
         p_A, p_C_AB, p_B_A = args
 
         p_A_th = torch.from_numpy(p_A).unsqueeze(1).unsqueeze(2)
-        p_C_AB_th = torch.from_numpy(p_C_AB)
-        p_B_A_th = torch.from_numpy(p_B_A).unsqueeze(2)
+        p_C_AB_th = torch.from_numpy(p_C_AB).permute(1, 2, 0)
+        p_B_A_th = torch.from_numpy(p_B_A).unsqueeze(2).permute(1, 0, 2)
 
         return torch.log(p_A_th) + torch.log(p_C_AB_th) + torch.log(p_B_A_th)
 
@@ -192,16 +192,16 @@ class ModelA2BC_C2B(nn.Module):
             log_p_C_A = torch.logsumexp(log_joint - log_p_A, dim=1, keepdim=True)
 
             self.p_A.w.data = log_p_A.squeeze()
-            self.p_B_AC.w.data = log_p_B_AC.squeeze()
-            self.p_C_A.w.data = log_p_C_A.squeeze()
+            self.p_B_AC.w.data = log_p_B_AC.squeeze().permute(1, 0, 2)
+            self.p_C_A.w.data = log_p_C_A.squeeze().permute(1, 0)
 
 
     def get_joint(*args):
         p_A, p_B_AC, p_C_A = args
 
         p_A_th = torch.from_numpy(p_A).unsqueeze(1).unsqueeze(2)
-        p_B_AC_th = torch.from_numpy(p_B_AC)
-        p_C_A_th = torch.from_numpy(p_C_A).unsqueeze(2)
+        p_B_AC_th = torch.from_numpy(p_B_AC).permute(1, 0, 2)
+        p_C_A_th = torch.from_numpy(p_C_A).unsqueeze(1).permute(2, 1, 0)
 
         return torch.log(p_A_th) + torch.log(p_B_AC_th) + torch.log(p_C_A_th)
 
@@ -233,15 +233,15 @@ class ModelB2AC_A2C(nn.Module):
             log_p_A_B = torch.logsumexp(log_joint - log_p_B, dim=2, keepdim=True)
 
             self.p_B.w.data = log_p_B.squeeze()
-            self.p_C_AB.w.data = log_p_C_AB.squeeze()
+            self.p_C_AB.w.data = log_p_C_AB.squeeze().permute(2, 0, 1)
             self.p_A_B.w.data = log_p_A_B.squeeze()
 
 
     def get_joint(*args):
         p_B, p_C_AB, p_A_B = args
 
-        p_B_th = torch.from_numpy(p_B).unsqueeze(1).unsqueeze(2)
-        p_C_AB_th = torch.from_numpy(p_C_AB)
+        p_B_th = torch.from_numpy(p_B).unsqueeze(0).unsqueeze(2)
+        p_C_AB_th = torch.from_numpy(p_C_AB).permute(1, 2, 0)
         p_A_B_th = torch.from_numpy(p_A_B).unsqueeze(2)
 
         return torch.log(p_B_th) + torch.log(p_C_AB_th) + torch.log(p_A_B_th)
@@ -275,16 +275,16 @@ class ModelB2AC_C2A(nn.Module):
             log_p_C_B = torch.logsumexp(log_joint - log_p_B, dim=0, keepdim=True)
 
             self.p_B.w.data = log_p_B.squeeze()
-            self.p_A_CB.w.data = log_p_A_CB.squeeze()
-            self.p_C_B.w.data = log_p_C_B.squeeze()
+            self.p_A_CB.w.data = log_p_A_CB.squeeze().permute(0, 2, 1)
+            self.p_C_B.w.data = log_p_C_B.squeeze().permute(1, 0)
 
 
     def get_joint(*args):
         p_B, p_A_CB, p_C_B = args
 
-        p_B_th = torch.from_numpy(p_B).unsqueeze(1).unsqueeze(2)
-        p_A_CB_th = torch.from_numpy(p_A_CB)
-        p_C_B_th = torch.from_numpy(p_C_B).unsqueeze(2)
+        p_B_th = torch.from_numpy(p_B).unsqueeze(0).unsqueeze(2)
+        p_A_CB_th = torch.from_numpy(p_A_CB).permute(0, 2, 1)
+        p_C_B_th = torch.from_numpy(p_C_B).unsqueeze(0).permute(0, 2, 1)
 
         return torch.log(p_B_th) + torch.log(p_A_CB_th) + torch.log(p_C_B_th)
 
@@ -317,16 +317,16 @@ class ModelC2AB_A2B(nn.Module):
             log_p_A_C = torch.logsumexp(log_joint - log_p_C, dim=1, keepdim=True)
 
             self.p_C.w.data = log_p_C.squeeze()
-            self.p_B_AC.w.data = log_p_B_AC.squeeze()
+            self.p_B_AC.w.data = log_p_B_AC.squeeze().permute(1, 0, 2)
             self.p_A_C.w.data = log_p_A_C.squeeze()
 
 
     def get_joint(*args):
         p_C, p_B_AC, p_A_C = args
 
-        p_C_th = torch.from_numpy(p_C).unsqueeze(1).unsqueeze(2)
-        p_B_AC_th = torch.from_numpy(p_B_AC)
-        p_A_C_th = torch.from_numpy(p_A_C).unsqueeze(2)
+        p_C_th = torch.from_numpy(p_C).unsqueeze(0).unsqueeze(1)
+        p_B_AC_th = torch.from_numpy(p_B_AC).permute(1, 0, 2)
+        p_A_C_th = torch.from_numpy(p_A_C).unsqueeze(1)
 
         return torch.log(p_C_th) + torch.log(p_B_AC_th) + torch.log(p_A_C_th)
 
@@ -366,8 +366,8 @@ class ModelC2AB_B2A(nn.Module):
     def get_joint(*args):
         p_C, p_A_BC, p_B_C = args
 
-        p_C_th = torch.from_numpy(p_C).unsqueeze(1).unsqueeze(2)
+        p_C_th = torch.from_numpy(p_C).unsqueeze(0).unsqueeze(1)
         p_A_BC_th = torch.from_numpy(p_A_BC)
-        p_B_C_th = torch.from_numpy(p_B_C).unsqueeze(2)
+        p_B_C_th = torch.from_numpy(p_B_C).unsqueeze(0)
 
         return torch.log(p_C_th) + torch.log(p_A_BC_th) + torch.log(p_B_C_th)
