@@ -82,12 +82,12 @@ def generate_data_categorical_extended(num_samples, pi_A, pi_B_A, pi_C):
     x_Bs = np.zeros((num_samples, N), dtype=np.int64)
     x_Cs = np.zeros((num_samples, N), dtype=np.int64)
     for i in range(num_samples):
-        x_Bs[i] = np.random.multinomial(1, pi_B_A[x_A[i]], size=1)
+        x_Bs[i] = np.random.multinomial(1, pi_B_A[:, x_A[i]], size=1)
     
     x_B_A = np.dot(x_Bs, r)
     
     for i in range(num_samples):
-        x_Cs[i] = np.random.multinomial(1, pi_C[x_B_A[i], x_A[i]], size=1)
+        x_Cs[i] = np.random.multinomial(1, pi_C[:, x_A[i], x_B_A[i]], size=1)
     
     x_C = np.dot(x_Cs, r)
     return np.vstack((x_A, x_B_A, x_C)).T.astype(np.int64)

@@ -32,7 +32,9 @@ def train_nll(opt, model, scm, train_distr_fn, polarity='X2Y', loss_fn=nn.MSELos
                 X, Y = decoder(X, Y)
             if encoder is not None:
                 # Apply the encoder, meant to "undo" the decoder up to swapping X and Y.
+                encoder.eval()
                 X, Y = encoder(X, Y)
+                encoder.train()
         # Now, train as usual
         if polarity == 'X2Y':
             inp, tar = X, Y
